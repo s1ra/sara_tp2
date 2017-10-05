@@ -3,8 +3,7 @@ import UIKit
 //====================================
 class ViewController: UIViewController {
     //------------------------
-    
-    @IBOutlet weak var imgBravo: UIImageView!
+    // Les connexions :
     
     @IBOutlet weak var back_1: UIView!
     @IBOutlet weak var front_1: UIView!
@@ -73,9 +72,11 @@ class ViewController: UIViewController {
     @IBOutlet weak var card_15: UIView!
     @IBOutlet weak var card_16: UIView!
     
-    //var cards: [UIView]!
+    //----------------------------------
+    //Déclaration des Tableaux
     
     var arrayOfImageViews: [UIImageView]!
+    
     var arrayOfAnimalNames: [String] = ["canard.png",
                                         "canard.png",
                                         "elephant.png",
@@ -92,36 +93,29 @@ class ViewController: UIViewController {
                                         "ratons_laveur.png",
                                         "tigre.png",
                                         "tigre.png"]
+    
     var arrayOfRandomAnimalNames = [String]()
+    
     var arrayChosenCards = [String]()
+    
     var arrayChosenViews = [UIView]()
     
     var arrayOfShowingBacks = [UIView]()
+    
     var arrayOfHidingFronts = [UIView]()
+    
+    //------------------------------------
+    //compteur pour les pairs des cartes trouvées
+    
     var compteur : Int = 0
+    
     //--------------------------------------
+    // Lorsque le doc est pret :
+    
     override func viewDidLoad() {
+        
         super.viewDidLoad()
-        
-        /*cards = [card_1,
-                 card_2,
-                 card_3,
-                 card_4,
-                 card_5,
-                 card_6,
-                 card_7,
-                 card_8,
-                 card_9,
-                 card_10,
-                 card_11,
-                 card_12,
-                 card_13,
-                 card_14,
-                 card_15,
-                 card_16]*/
-        
-      //  imgBravo.isHidden = true
-        
+   
         arrayOfImageViews = [imgView1,
                              imgView2,
                              imgView3,
@@ -138,12 +132,16 @@ class ViewController: UIViewController {
                              imgView14,
                              imgView15,
                              imgView16]
+        
         randomAnimalNames()
+        
         setImagesToCard()
     }
     //------------------------
+    // la fonction pour afficher les cartes
+    
     @IBAction func showCard(_ sender: UIButton) {
-        //print(sender.tag)
+     
         if arrayOfHidingFronts.count == 2 {
             return
         }
@@ -248,14 +246,19 @@ class ViewController: UIViewController {
         default:
             break
         }
+        
         verification()
     }
     //------------------------
-    func flipCard(from: UIView, to: UIView) { //methode pour faire tt la transition
+    //la fonction pour faire tourner les cartes :
+    
+    func flipCard(from: UIView, to: UIView) {
+        
         let transitionOptions: UIViewAnimationOptions = [.transitionFlipFromRight, .showHideTransitionViews]
         
         UIView.transition(with: from, duration: 1.0, options: transitionOptions, animations: {
             from.isHidden = true
+            
         })
         
         UIView.transition(with: to, duration: 1.0, options: transitionOptions, animations: {
@@ -263,41 +266,58 @@ class ViewController: UIViewController {
         })
     }
     //------------------------
+    //la fonction pour associer les images aux cartes
+    
     func setImagesToCard() {
+        
         var number = 0
+        
         for imgView in arrayOfImageViews {
+            
             imgView.image = UIImage(named: arrayOfRandomAnimalNames[number])
+            
             number = number + 1
         }
     }
     //------------------------
+    //la fonction pour mélanger les cartes (au hazard)
+    
     func randomAnimalNames() {
+        
         let numberOfAnimals = arrayOfAnimalNames.count
         
         for _ in 1...numberOfAnimals {
+            
             let randomNumber = Int(arc4random_uniform(UInt32(arrayOfAnimalNames.count)))
             arrayOfRandomAnimalNames.append(arrayOfAnimalNames[randomNumber])
             arrayOfAnimalNames.remove(at: randomNumber)
         }
     }
     //------------------------
+    // comparer les cartes choisis par l'enfant
     func verification() {
    
         if arrayChosenCards.count == 2 {
+            
             if arrayChosenCards[0] == arrayChosenCards[1] {
+                
                 Timer.scheduledTimer(timeInterval: 1,
                                      target: self,
                                      selector: #selector(hideCards),
                                      userInfo: nil,
                                      repeats: false)
-                compteur = compteur + 1
+                
+                compteur = compteur + 1 // incrementer le compteur
+                
                 Timer.scheduledTimer(timeInterval: 2,
                                      target: self,
-                                     selector: (#selector(verifier)),
+                                     selector: (#selector(compter)),
                                      userInfo: nil,
                                      repeats: false)
             }
+                
             else {
+                
                 arrayChosenViews = []
             }
             arrayChosenCards = []
@@ -305,8 +325,12 @@ class ViewController: UIViewController {
         resetCards()
     }
     //------------------------
+    //la fonction pour initialiser les cartes (par default)
+    
     func resetCards() {
+        
         if arrayOfShowingBacks.count == 2 {
+            
         Timer.scheduledTimer(timeInterval: 2,
                              target: self,
                              selector: (#selector(reflip)),
@@ -315,68 +339,44 @@ class ViewController: UIViewController {
         }
     }
     //-----------------------
-    @objc func verifier() {
-        if (compteur ==  1) {
-            //imgBravo.isHidden = false
-            /*Timer.scheduledTimer(timeInterval: 3,
-                                 target: self,
-                                 selector: (#selector(bravo)),
-                                 userInfo: nil,
-                                 repeats: false)*/
-            //sleep(8)
-            performSegue(withIdentifier: "seg", sender: nil)
+    //la fonction pour compter le nombre des cartes trouvées
+    
+    @objc func compter() {
+        
+        if (compteur == 8) {           // 8 est le nombre maximal des cartes trouvées (fin de jeu)
+            
+           // sleep(3)
+            
+            performSegue(withIdentifier: "seg", sender: nil)      // pour aller au ViewController2
         }
     }
     //-----------------------
+    // la fonction pour retourner les cartes
+    
     @objc func reflip() {
+        
         for index in 0..<arrayOfShowingBacks.count {
+            
             flipCard(from: arrayOfShowingBacks[index], to: arrayOfHidingFronts[index])
         }
         arrayOfHidingFronts = []
         arrayOfShowingBacks = []
     }
+    
     //------------------------
-    /*@objc func bravo() {
-        imgBravo.isHidden = false
-    }*/
-    //------------------------
+    // la fonction pour cacher les cartes
+    
     @objc func hideCards() {
+        
         arrayChosenViews[0].isHidden = true
         arrayChosenViews[1].isHidden = true
         arrayChosenViews = []
     }
     //------------------------
-    /*@IBAction func reset(_ sender: UIButton) {
-        
-        for card in cards {
-          
-            card.isHidden = false ;
-            setImagesToCard()
-            arrayOfAnimalNames = ["canard.png",
-                                  "canard.png",
-                                  "elephant.png",
-                                  "elephant.png",
-                                  "girafe.png",
-                                  "girafe.png",
-                                  "hippopotame.png",
-                                  "hippopotame.png",
-                                  "ours",
-                                  "ours",
-                                  "porc",
-                                  "porc",
-                                  "ratons_laveur.png",
-                                  "ratons_laveur.png",
-                                  "tigre.png",
-                                  "tigre.png"]
-            arrayOfRandomAnimalNames = []
-            randomAnimalNames()
-            setImagesToCard()
-         }
-     }*/
-   
+  
 }
 
-//performSegue(withIdentifier: "seg", sender: nil)
+
 
 
 
